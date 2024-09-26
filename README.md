@@ -1,12 +1,9 @@
 # TriggerSearch
-This is where she makes a mod.
+
+You can't find triggers by their icon in the editor? Well, try to search them **by name**!
+This mod allows you to search any triggers you want **by their name** instead of **by their icons**.
 
 <img src="logo.png" width="150" alt="the mod's logo" />
-
-*Update logo.png to change your mod's icon (please)*
-
-## Getting started
-We recommend heading over to [the getting started section on our docs](https://docs.geode-sdk.org/getting-started/) for useful info on what to do next.
 
 ## Build instructions
 For more info, see [our docs](https://docs.geode-sdk.org/getting-started/create-mod#build)
