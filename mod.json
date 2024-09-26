@@ -6,7 +6,7 @@
 	},
 	"id": "dogotrigger.triggersearch",
 	"name": "Trigger Search",
-	"version": "v1.0.1",
+	"version": "v1.0.2",
 	"developer": "dogotrigger",
 	"description": "Search for triggers by their name",
 	"dependencies": [
@@ -22,5 +22,14 @@
 				"assets/*.png"
 			]
 		}
-	}
+	},
+	"issues": {
+		"info": "You can report issues about Trigger Search in <cy>the mod's repository</c>.",
+		"url": "https://github.com/SergeyMC9730/triggersearch"
+	},
+	"repository": "https://github.com/SergeyMC9730/triggersearch",
+	"links": {
+		"repository": "https://github.com/SergeyMC9730/triggersearch"
+	},
+	"tags": [ "editor", "offline", "enhancement", "utility" ]
 }

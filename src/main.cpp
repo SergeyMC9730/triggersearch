@@ -240,7 +240,7 @@ static const std::map<int, SObject> __triggerObjects = {
     {31,   {"Start Pos", 31, {"edit_eStartPosBtn_001.png"}, {{"misc"}}}},
     {32,   {"Ghost Enable", 32, {"edit_eGhostEBtn_001.png"}, {{"misc"}}}},
     {33,   {"Ghost Disable", 33, {"edit_eGhostDBtn_001.png"}, {{"misc"}}}},
-    {34,   {"Legacy Level End", 34, {"edit_eLevelEndBtn_001.png"_spr}, {{"misc"}}}}, // TEMP! "edit_eLevelEndBtn_001.png"_spr
+    {34,   {"Legacy Level End", 34, {"edit_eLevelEndBtn_001.png"_spr}, {{"misc"}}}},
     {55,   {"Randomized Transition", 55, {"edit_eeFABtn_001.png"}, {{"transition"}}}},
     {56,   {"Far Right Transition", 56, {"edit_eeFALBtn_001.png"}, {{"transition"}}}},
     {57,   {"Far Left Transition", 57, {"edit_eeFARBtn_001.png"}, {{"transition"}}}},
@@ -404,7 +404,7 @@ public:
     }
 
     void onCopy(CCObject* sender) {
-        if (_selectedLocal) {
+        if (*_currentlySelectedObject == _baseObject._objId) {
             *_currentlySelectedObject = 0;
             _selectedLocal = false;
 
@@ -758,6 +758,14 @@ namespace SGlobal {
     }
 }
 
+class $modify(EditorUI) {
+    bool init(LevelEditorLayer * editorLayer) {
+        EditorTabs::get()->registerTab(TabType::BUILD, "trigger-search-tab"_spr, SGlobal::loadSearchTab, SGlobal::onSearchTabActivate);
+
+        return EditorUI::init(editorLayer);
+    }
+};
+
 $execute{
-    EditorTabs::get()->registerTab(TabType::BUILD, "trigger-search-tab"_spr, SGlobal::loadSearchTab, SGlobal::onSearchTabActivate);
+    // EditorTabs::get()->registerTab(TabType::BUILD, "trigger-search-tab"_spr, SGlobal::loadSearchTab, SGlobal::onSearchTabActivate);
 }
