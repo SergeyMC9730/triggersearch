@@ -371,8 +371,6 @@ private:
 
     TextGradient _gradient;
 
-    int* _currentlySelectedObject;
-
     ButtonSprite* _copySprite;
     CCMenuItemSpriteExtra* _copyButton;
 
@@ -393,7 +391,9 @@ public:
     }
 
     void update(float delta) {
-        if (*_currentlySelectedObject == _baseObject._objId) {
+        EditorUI* ui = EditorUI::get();
+        
+        if (ui->m_selectedObjectIndex == _baseObject._objId) {
             setColorToBS(_copySprite, { 128, 128, 128 });
             // _copyButton->setEnabled(false);
         }
@@ -404,16 +404,18 @@ public:
     }
 
     void onCopy(CCObject* sender) {
-        if (*_currentlySelectedObject == _baseObject._objId) {
-            *_currentlySelectedObject = 0;
+
+        EditorUI* ui = EditorUI::get();
+
+        if (ui->m_selectedObjectIndex == _baseObject._objId) {
+            ui->m_selectedObjectIndex = 0;
             _selectedLocal = false;
 
             return;
         }
         
-        EditorUI* ui = EditorUI::get();
+        ui->m_selectedObjectIndex = _baseObject._objId;
         ui->updateCreateMenu(false);
-        *_currentlySelectedObject = _baseObject._objId;
 
         auto notification = Notification::create("Object has been selected.", NotificationIcon::Success, 2.f);
         notification->show();
@@ -484,15 +486,6 @@ public:
         _infoContainer->addChild(_titleLabel);
 
         ButtonSprite* joinSprite = ButtonSprite::create("Copy", 0.7f);
-
-        EditorUI* ui = EditorUI::get();
-#if defined(GEODE_IS_WINDOWS)
-        _currentlySelectedObject = (int*)((char*)ui + 0x300 + 0x1d0);
-#elif defined(GEODE_IS_ANDROID64)
-        _currentlySelectedObject = (int*)((char*)ui + 0x4c8);
-#elif defined(GEODE_IS_ANDROID32)
-        _currentlySelectedObject = (int*)((char*)ui + 0x328);
-#endif
 
         _buttonMenu = CCMenu::create();
 
@@ -635,76 +628,34 @@ public:
     }
 };
 
-namespace SGlobal {
-    CCMenu* mainMenu = nullptr;
-    std::string _currentTrigName;
+class $modify(MyEditorUI, EditorUI) {
 
-    std::string lowercaseString(std::string _str) {
-        std::string str = _str;
+    struct Fields {
+        CCMenu* _mainMenu;
+        std::string _currentTrigName;
+    };
 
-        for (int i = 0; i < str.length(); i++) {
-            str[i] = std::tolower(str[i]);
-        }
+    bool init(LevelEditorLayer* editorLayer) {
 
-        return str;
-    }
-
-    void onSearchTabActivate(EditorUI* ui, bool state, CCNode* nd);
-
-    CCNode* loadSearchTab(EditorUI* ui, CCMenuItemToggler* toggler) {
-        auto arr = CCArray::create();
-        // auto label = CCLabelBMFont::create("meow", "bigFont.fnt");
-        // arr->addObject(label);
-
-        CCLabelBMFont* textLabelOn = CCLabelBMFont::create("S", "bigFont.fnt");
-        textLabelOn->setScale(0.5f);
-        CCLabelBMFont* textLabelOff = CCLabelBMFont::create("S", "bigFont.fnt");
-        textLabelOff->setScale(0.5f);
-
-        EditorTabUtils::setTabIcons(toggler, textLabelOn, textLabelOff);
-
-        auto ret_node = EditorTabUtils::createEditButtonBar(arr, ui);
-
-        onSearchTabActivate(ui, true, ret_node);
-
-        return ret_node;
-    }
-
-    void onSearchTabActivate(EditorUI *ui, bool state, CCNode* nd) {
-        EditButtonBar* bar = typeinfo_cast<EditButtonBar*>(nd);
-        CCObject *btnPageObj = bar->m_scrollLayer->m_extendedLayer->getChildren()->objectAtIndex(0);
-        ButtonPage* btnPage = typeinfo_cast<ButtonPage*>(btnPageObj);
-        CCObject* menuObj = btnPage->getChildren()->objectAtIndex(0);
-        mainMenu = typeinfo_cast<CCMenu*>(menuObj);
-
-        if (state == false) {
-            mainMenu->removeAllChildrenWithCleanup(true);
-
-            return;
-        }
-        
-        log::info("mainMenu={}", mainMenu);
+        if (!EditorUI::init(editorLayer)) return false;
 
         auto director = CCDirector::get();
         auto winsize = director->getWinSize();
 
-        // 85, 96
-
         int padding = 10;
 
-        mainMenu->setPosition({ 0, 0 });
-        mainMenu->setContentHeight(90.f);
-        mainMenu->setContentWidth(winsize.width - 85 - 96 - (padding * 2));
-        mainMenu->setPositionX(85.f + padding);
-
-        mainMenu->removeAllChildrenWithCleanup(true);
+        m_fields->_mainMenu = CCMenu::create();
+        m_fields->_mainMenu->setPosition({ 0, 0 });
+        m_fields->_mainMenu->setContentHeight(90.f);
+        m_fields->_mainMenu->setContentWidth(winsize.width - 85 - 96 - (padding * 2));
+        m_fields->_mainMenu->setPositionX(85.f + padding);
 
         CCNode* inputNode = CCNode::create();
         inputNode->setID("trigger-input-node"_spr);
 
         TextInput* in = TextInput::create(100.f, "Enter trigger name...", "chatFont.fnt");
         in->setPositionX(in->getContentWidth() / 2);
-        in->setPositionY(mainMenu->getContentHeight() / 2.f);
+        in->setPositionY(m_fields->_mainMenu->getContentHeight() / 2.f);
         in->setID("trigger-input"_spr);
 
         inputNode->addChild(in);
@@ -715,7 +666,7 @@ namespace SGlobal {
         layout->setAutoScale(false);
         layout->setGap(padding);
 
-        mainMenu->setLayout(layout);
+        m_fields->_mainMenu->setLayout(layout);
 
         SObjectList* searchNode = SObjectList::create();
 
@@ -723,15 +674,15 @@ namespace SGlobal {
 
         __currentTriggerIdx = 0;
 
-        in->setCallback([searchNode, in](auto output) {
-            _currentTrigName = output;
+        in->setCallback([this, searchNode, in](auto output) {
+            m_fields->_currentTrigName = output;
 
             searchNode->removeCells();
 
             __currentTriggerIdx = 0;
 
             for (auto& [k, v] : __triggerObjects) {
-                if (lowercaseString(v._name).find(output) != std::string::npos) {
+                if (utils::string::toLower(v._name).find(output) != std::string::npos) {
                     SObjectCell* cell = SObjectCell::create(v);
 
                     searchNode->addCell(cell);
@@ -744,28 +695,32 @@ namespace SGlobal {
 
             in->setLabel(fmt::format("{} triggers found", __currentTriggerIdx));
         });
-        in->setString(_currentTrigName, true);
 
-        mainMenu->addChild(inputNode);
-        mainMenu->addChild(searchNode);
+        in->setString(m_fields->_currentTrigName, true);
 
-        mainMenu->updateLayout();
+        m_fields->_mainMenu->addChild(inputNode);
+        m_fields->_mainMenu->addChild(searchNode);
 
-        mainMenu->setPositionX(winsize.width / 2.f);
-        mainMenu->setPositionY(mainMenu->getContentHeight() / 2.f);
+        m_fields->_mainMenu->updateLayout();
+
+        m_fields->_mainMenu->setPositionX(winsize.width / 2.f);
+        m_fields->_mainMenu->setPositionY(m_fields->_mainMenu->getContentHeight() / 2.f);
 
         in->setPositionY(in->getContentHeight() / 2.f);
+
+        EditorTabs::get()->addTab(this, TabType::BUILD, "trigger-search-tab"_spr, create_tab_callback(MyEditorUI::loadSearchTab));
+
+        return true;
     }
-}
 
-class $modify(EditorUI) {
-    bool init(LevelEditorLayer * editorLayer) {
-        EditorTabs::get()->registerTab(TabType::BUILD, "trigger-search-tab"_spr, SGlobal::loadSearchTab, SGlobal::onSearchTabActivate);
+    CCNode* loadSearchTab(EditorUI* ui, CCMenuItemToggler* toggler) {
 
-        return EditorUI::init(editorLayer);
+        CCLabelBMFont* textLabel = CCLabelBMFont::create("S", "bigFont.fnt");
+        textLabel->setScale(0.5f);
+
+        EditorTabUtils::setTabIcon(toggler, textLabel);
+        textLabel->setPositionY(textLabel->getPositionY() + 1);
+
+        return m_fields->_mainMenu;
     }
 };
-
-$execute{
-    // EditorTabs::get()->registerTab(TabType::BUILD, "trigger-search-tab"_spr, SGlobal::loadSearchTab, SGlobal::onSearchTabActivate);
-}
