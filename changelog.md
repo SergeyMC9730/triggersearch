@@ -1,3 +1,7 @@
+# 1.0.3
+- Patches made by Alphalaneous were been applied
+- "1 triggers found" label has been fixed
+
 # 1.0.2
 - Fixed object selection
 - Added GitHub link

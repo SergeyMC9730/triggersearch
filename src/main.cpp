@@ -608,7 +608,7 @@ public:
 
     void addCell(SObjectCell* cell) {
         if (_list == nullptr) {
-            log::info("SObjectList: error: _list = nullptr");
+            log::info("SObjectList: error: _list is nullptr");
 
             return;
         }
@@ -693,7 +693,12 @@ class $modify(MyEditorUI, EditorUI) {
                 }
             }
 
-            in->setLabel(fmt::format("{} triggers found", __currentTriggerIdx));
+            std::string triggerStr = "triggers";
+            if (__currentTriggerIdx == 1) {
+                triggerStr = "trigger";
+            }
+
+            in->setLabel(fmt::format("{} {} found", __currentTriggerIdx, triggerStr));
         });
 
         in->setString(m_fields->_currentTrigName, true);
