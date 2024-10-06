@@ -254,6 +254,7 @@ static const std::map<int, SObject> __triggerObjects = {
     {1007, {"Alpha", 1007, {"edit_eAlphaBtn_001.png"}, {{"fade"}}}},
     {1049, {"Toggle", 1049, {"edit_eToggleBtn_001.png", "edit_eToggleBtn2_001.png"}, {{"misc"}}}},
     {1268, {"Spawn", 1268, {"edit_eSpawnBtn_001.png"}, {{"misc"}}}},
+    {1346, {"Rotate", 1346, {"edit_eRotateComBtn_001.png"}, {{"move"}}}},
     {1347, {"Follow", 1347, {"edit_eFollowComBtn_001.png"}, {{"move"}}}},
     {1520, {"Shake", 1520, {"edit_eShakeBtn_001.png"}, {{"misc"}}}},
     {1585, {"Animate", 1585, {"edit_eAnimateBtn_001.png"}, {{"misc"}}}},

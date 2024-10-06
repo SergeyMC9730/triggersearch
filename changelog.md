@@ -1,3 +1,6 @@
+# 1.0.4
+- Added Rotate trigger
+
 # 1.0.3
 - Patches made by Alphalaneous were been applied
 - "1 triggers found" label has been fixed

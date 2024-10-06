@@ -6,7 +6,7 @@
 	},
 	"id": "dogotrigger.triggersearch",
 	"name": "Trigger Search",
-	"version": "v1.0.3",
+	"version": "v1.0.4",
 	"developers": [ "dogotrigger", "Alphalaneous" ],
 	"description": "Search for triggers by their name",
 	"dependencies": [
