@@ -1,3 +1,6 @@
+# 1.0.5
+- Bumped minimal Geode version to `4.0.1`
+
 # 1.0.4
 - Added Rotate trigger
 
